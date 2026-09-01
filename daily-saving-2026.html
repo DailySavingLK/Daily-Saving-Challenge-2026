@@ -1,1 +1,1657 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Daily Saving Challenge 2026</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,"Noto Sans Sinhala",sans-serif;
+    background:linear-gradient(135deg,#07111f,#123b57);
+    color:white;
+    min-height:100vh;
+}
+
+.container{
+    max-width:1150px;
+    margin:auto;
+    padding:25px;
+}
+
+header{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+h1{
+    font-size:clamp(30px,6vw,50px);
+    margin:5px;
+}
+
+.subtitle{
+    color:#b9c9d8;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.card{
+    background:#ffffff12;
+    border:1px solid #ffffff22;
+    border-radius:22px;
+    padding:20px;
+    box-shadow:0 15px 35px #0005;
+}
+
+.wheel-box{
+    position:relative;
+    text-align:center;
+}
+
+.pointer{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:38px;
+    z-index:2;
+}
+
+canvas{
+    width:min(420px,100%);
+    height:auto;
+}
+
+.result{
+    text-align:center;
+    color:#ffd166;
+    font-size:28px;
+    font-weight:bold;
+    margin:10px;
+}
+
+button{
+    border:0;
+    border-radius:12px;
+    padding:13px 18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.spin{
+    width:100%;
+    background:#ffd166;
+    color:#172033;
+    font-size:18px;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.save{
+    flex:1;
+    background:#35d07f;
+    color:#052515;
+}
+
+.reset{
+    background:#34495e;
+    color:white;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.stat{
+    background:#071522cc;
+    padding:14px;
+    border-radius:14px;
+}
+
+.stat small{
+    color:#9eb1c3;
+}
+
+.stat b{
+    display:block;
+    font-size:22px;
+    margin-top:5px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border-radius:9px;
+    border:1px solid #557089;
+    background:#0b1b2a;
+    color:white;
+    margin-bottom:10px;
+}
+
+/* PROGRESS */
+
+.progress{
+    height:13px;
+    background:#26384a;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.bar{
+    height:100%;
+    width:0%;
+    background:#35d07f;
+    transition:.5s;
+}
+
+/* MONTHLY TOTALS */
+
+.monthly-title{
+    margin-top:25px;
+}
+
+.monthly-totals{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.month-card{
+    padding:15px;
+    border-radius:15px;
+    background:#071522cc;
+}
+
+.month-card span{
+    color:#b6c7d8;
+}
+
+.month-card strong{
+    display:block;
+    font-size:21px;
+    margin-top:6px;
+    color:#6ee8a3;
+}
+
+.grand-total{
+    margin-top:12px;
+    padding:18px;
+    text-align:center;
+    border-radius:16px;
+    background:#0d5035;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.grand-total strong{
+    display:block;
+    color:#ffd166;
+    font-size:31px;
+    margin-top:6px;
+}
+
+/* CALENDAR */
+
+.calendar-title{
+    margin-top:25px;
+}
+
+.calendar{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:5px;
+}
+
+.dow{
+    text-align:center;
+    color:#8fa5ba;
+    font-size:12px;
+    padding:5px;
+}
+
+.day{
+    background:#0a1b2b;
+    border-radius:8px;
+    padding:7px;
+    min-height:62px;
+}
+
+.saved{
+    background:#0d5035;
+}
+
+.today{
+    outline:2px solid #ffd166;
+}
+
+.amount{
+    color:#6ee8a3;
+    font-size:11px;
+    margin-top:6px;
+}
+
+.month-total-small{
+    margin:10px 0;
+    padding:10px;
+    background:#071522cc;
+    border-radius:10px;
+    color:#ffd166;
+    font-weight:bold;
+}
+
+/* HISTORY */
+
+.history-row{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid #ffffff12;
+    padding:10px;
+}
+
+.empty{
+    text-align:center;
+    color:#8fa5b8;
+    padding:20px;
+}
+
+@media(max-width:800px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .monthly-totals{
+        grid-template-columns:1fr;
+    }
+
+    .container{
+        padding:14px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+<header>
+
+<h1>
+🎡 Daily Saving Challenge
+</h1>
+
+<div class="subtitle">
+2026 සැප්තැම්බර් 01 → දෙසැම්බර් 31
+</div>
+
+</header>
+
+
+<div class="grid">
+
+
+<!-- =========================
+     WHEEL
+========================= -->
+
+<section class="card">
+
+<h2>
+🎯 අද Saving එක
+</h2>
+
+<div class="wheel-box">
+
+<div class="pointer">
+▼
+</div>
+
+<canvas
+id="wheel"
+width="600"
+height="600">
+</canvas>
+
+</div>
+
+
+<div
+id="result"
+class="result">
+
+SPIN කරන්න!
+
+</div>
+
+
+<button
+id="spin"
+class="spin">
+
+🎡 SPIN THE WHEEL
+
+</button>
+
+
+<div class="buttons">
+
+<button
+id="save"
+class="save"
+disabled>
+
+✅ Save Today
+
+</button>
+
+
+<button
+id="reset"
+class="reset">
+
+Reset
+
+</button>
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     SUMMARY
+========================= -->
+
+<section class="card">
+
+<h2>
+📊 Savings Summary
+</h2>
+
+
+<div class="stats">
+
+
+<div class="stat">
+
+<small>
+මුළු Savings
+</small>
+
+<b id="total">
+Rs. 0
+</b>
+
+</div>
+
+
+<div class="stat">
+
+<small>
+Saving Days
+</small>
+
+<b id="days">
+0
+</b>
+
+</div>
+
+
+<div class="stat">
+
+<small>
+මේ මාසයේ
+</small>
+
+<b id="currentMonth">
+Rs. 0
+</b>
+
+</div>
+
+
+<div class="stat">
+
+<small>
+Goal
+</small>
+
+<b id="goalShow">
+Rs. 50,000
+</b>
+
+</div>
+
+
+</div>
+
+
+<p>
+🎯 Saving Goal
+</p>
+
+
+<input
+id="goal"
+type="number"
+min="0"
+value="50000"
+>
+
+
+<p id="percent">
+0% complete
+</p>
+
+
+<div class="progress">
+
+<div
+id="bar"
+class="bar">
+</div>
+
+</div>
+
+
+
+<!-- =========================
+     MONTHLY TOTALS
+========================= -->
+
+<h2 class="monthly-title">
+📊 Monthly Totals
+</h2>
+
+
+<div class="monthly-totals">
+
+
+<div class="month-card">
+
+<span>
+🟢 September 2026
+</span>
+
+<strong id="septemberTotal">
+Rs. 0
+</strong>
+
+</div>
+
+
+<div class="month-card">
+
+<span>
+🔵 October 2026
+</span>
+
+<strong id="octoberTotal">
+Rs. 0
+</strong>
+
+</div>
+
+
+<div class="month-card">
+
+<span>
+🟠 November 2026
+</span>
+
+<strong id="novemberTotal">
+Rs. 0
+</strong>
+
+</div>
+
+
+<div class="month-card">
+
+<span>
+🟣 December 2026
+</span>
+
+<strong id="decemberTotal">
+Rs. 0
+</strong>
+
+</div>
+
+
+</div>
+
+
+<div class="grand-total">
+
+💰 GRAND TOTAL
+
+<strong id="grandTotal">
+Rs. 0
+</strong>
+
+</div>
+
+
+
+<!-- =========================
+     CALENDAR
+========================= -->
+
+<h2 class="calendar-title">
+📅 2026 Saving Calendar
+</h2>
+
+
+<div style="color:#9eb1c3;font-size:13px">
+
+Save කළ දවස 🟢 green වෙනවා.
+එදා save කළ amount එකත් පෙන්වනවා.
+
+</div>
+
+
+<div id="calendar">
+</div>
+
+
+</section>
+
+</div>
+
+
+
+<!-- =========================
+     HISTORY
+========================= -->
+
+<section
+class="card"
+style="margin-top:20px">
+
+<h2>
+🧾 Saving History
+</h2>
+
+<div id="history">
+</div>
+
+</section>
+
+
+</div>
+
+
+
+<script>
+
+/* ==================================
+   SAVING AMOUNTS
+================================== */
+
+const amounts = [
+
+50,
+100,
+200,
+300,
+500,
+750,
+1000,
+2000
+
+];
+
+
+
+/* ==================================
+   CHALLENGE DATES
+================================== */
+
+const startDate =
+new Date(2026,8,1);
+
+const endDate =
+new Date(2026,11,31);
+
+
+
+/* ==================================
+   LOAD DATA
+================================== */
+
+let savings =
+JSON.parse(
+localStorage.getItem(
+"savingChallenge2026"
+) || "{}"
+);
+
+
+let selectedAmount =
+null;
+
+let angle = 0;
+
+let spinning = false;
+
+
+
+/* ==================================
+   WHEEL
+================================== */
+
+const canvas =
+document.getElementById("wheel");
+
+const ctx =
+canvas.getContext("2d");
+
+
+
+function drawWheel(rotation=0){
+
+const center = 300;
+
+const radius = 270;
+
+const count =
+amounts.length;
+
+const slice =
+Math.PI * 2 / count;
+
+
+ctx.clearRect(
+0,
+0,
+600,
+600
+);
+
+
+
+amounts.forEach(
+(amount,index)=>{
+
+const start =
+rotation +
+index * slice -
+Math.PI / 2;
+
+const end =
+start + slice;
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+center,
+center
+);
+
+ctx.arc(
+center,
+center,
+radius,
+start,
+end
+);
+
+ctx.closePath();
+
+
+ctx.fillStyle =
+index % 2
+? "#277da1"
+: "#f4a261";
+
+ctx.fill();
+
+ctx.strokeStyle =
+"#ffffff";
+
+ctx.lineWidth = 4;
+
+ctx.stroke();
+
+
+
+/* TEXT */
+
+ctx.save();
+
+ctx.translate(
+center,
+center
+);
+
+ctx.rotate(
+start + slice / 2
+);
+
+ctx.fillStyle =
+"#ffffff";
+
+ctx.font =
+"bold 27px Arial";
+
+ctx.textAlign =
+"right";
+
+ctx.fillText(
+"Rs." + amount,
+245,
+10
+);
+
+ctx.restore();
+
+});
+
+
+
+/* CENTER */
+
+ctx.beginPath();
+
+ctx.arc(
+center,
+center,
+55,
+0,
+Math.PI * 2
+);
+
+ctx.fillStyle =
+"#111d2d";
+
+ctx.fill();
+
+
+ctx.fillStyle =
+"#ffd166";
+
+ctx.font =
+"bold 20px Arial";
+
+ctx.textAlign =
+"center";
+
+ctx.fillText(
+"SAVE",
+center,
+center + 7
+);
+
+}
+
+
+drawWheel();
+
+
+
+/* ==================================
+   SPIN
+================================== */
+
+document
+.getElementById("spin")
+.addEventListener(
+"click",
+()=>{
+
+
+if(spinning)
+return;
+
+
+spinning = true;
+
+
+const spinButton =
+document.getElementById(
+"spin"
+);
+
+spinButton.disabled =
+true;
+
+
+const index =
+Math.floor(
+Math.random() *
+amounts.length
+);
+
+
+const slice =
+Math.PI * 2 /
+amounts.length;
+
+
+const oldAngle =
+angle;
+
+
+const targetAngle =
+angle +
+Math.PI * 2 * 8 +
+(
+Math.PI * 2 -
+(index + 0.5) * slice
+);
+
+
+const startTime =
+performance.now();
+
+
+const duration =
+3000;
+
+
+
+function animate(time){
+
+const progress =
+Math.min(
+1,
+(time-startTime) /
+duration
+);
+
+
+const ease =
+1 -
+Math.pow(
+1-progress,
+3
+);
+
+
+angle =
+oldAngle +
+(targetAngle-oldAngle)
+* ease;
+
+
+drawWheel(angle);
+
+
+if(progress < 1){
+
+requestAnimationFrame(
+animate
+);
+
+}
+
+else{
+
+selectedAmount =
+amounts[index];
+
+
+document
+.getElementById(
+"result"
+)
+.textContent =
+"💰 Rs. " +
+selectedAmount
+.toLocaleString();
+
+
+document
+.getElementById(
+"save"
+)
+.disabled = false;
+
+
+spinning = false;
+
+spinButton.disabled =
+false;
+
+}
+
+}
+
+
+requestAnimationFrame(
+animate
+);
+
+});
+
+
+
+/* ==================================
+   DATE KEY
+================================== */
+
+function dateKey(date){
+
+return date
+.toISOString()
+.slice(0,10);
+
+}
+
+
+
+/* ==================================
+   MONEY
+================================== */
+
+function money(number){
+
+return "Rs. " +
+Number(number)
+.toLocaleString();
+
+}
+
+
+
+/* ==================================
+   SAVE TODAY
+================================== */
+
+document
+.getElementById("save")
+.addEventListener(
+"click",
+()=>{
+
+
+const today =
+new Date();
+
+today.setHours(
+0,0,0,0
+);
+
+
+if(
+today < startDate ||
+today > endDate
+){
+
+alert(
+"මෙම Challenge එක 2026 සැප්තැම්බර් 1 සිට දෙසැම්බර් 31 දක්වායි."
+);
+
+return;
+
+}
+
+
+const key =
+dateKey(today);
+
+
+if(savings[key]){
+
+alert(
+"අද Saving එක දැනටමත් Save කරලා තියෙනවා."
+);
+
+return;
+
+}
+
+
+if(!selectedAmount){
+
+alert(
+"මුලින් Wheel එක Spin කරන්න."
+);
+
+return;
+
+}
+
+
+savings[key] =
+selectedAmount;
+
+
+localStorage.setItem(
+"savingChallenge2026",
+JSON.stringify(savings)
+);
+
+
+selectedAmount =
+null;
+
+
+document
+.getElementById(
+"result"
+)
+.textContent =
+"✅ Saved!";
+
+
+document
+.getElementById(
+"save"
+)
+.disabled = true;
+
+
+updateAll();
+
+});
+
+
+
+/* ==================================
+   GOAL
+================================== */
+
+const goalInput =
+document.getElementById(
+"goal"
+);
+
+
+goalInput.value =
+localStorage.getItem(
+"savingGoal2026"
+) || 50000;
+
+
+goalInput.addEventListener(
+"input",
+()=>{
+
+localStorage.setItem(
+"savingGoal2026",
+goalInput.value
+);
+
+updateAll();
+
+});
+
+
+
+/* ==================================
+   RESET
+================================== */
+
+document
+.getElementById("reset")
+.addEventListener(
+"click",
+()=>{
+
+
+if(
+confirm(
+"සියලුම Savings History මකන්නද?"
+)
+){
+
+savings = {};
+
+
+localStorage.removeItem(
+"savingChallenge2026"
+);
+
+
+updateAll();
+
+}
+
+});
+
+
+
+/* ==================================
+   MONTH TOTAL
+================================== */
+
+function getMonthTotal(month){
+
+return Object.entries(
+savings
+)
+
+.filter(
+([date])=>{
+
+return Number(
+date.substring(5,7)
+) === month;
+
+})
+
+.reduce(
+(total,[,amount])=>{
+
+return total +
+Number(amount);
+
+},
+0
+);
+
+}
+
+
+
+/* ==================================
+   UPDATE MONTHLY TOTALS
+================================== */
+
+function updateMonthlyTotals(){
+
+
+const september =
+getMonthTotal(9);
+
+
+const october =
+getMonthTotal(10);
+
+
+const november =
+getMonthTotal(11);
+
+
+const december =
+getMonthTotal(12);
+
+
+const grandTotal =
+september +
+october +
+november +
+december;
+
+
+
+document
+.getElementById(
+"septemberTotal"
+)
+.textContent =
+money(september);
+
+
+document
+.getElementById(
+"octoberTotal"
+)
+.textContent =
+money(october);
+
+
+document
+.getElementById(
+"novemberTotal"
+)
+.textContent =
+money(november);
+
+
+document
+.getElementById(
+"decemberTotal"
+)
+.textContent =
+money(december);
+
+
+document
+.getElementById(
+"grandTotal"
+)
+.textContent =
+money(grandTotal);
+
+}
+
+
+
+/* ==================================
+   UPDATE ALL
+================================== */
+
+function updateAll(){
+
+
+const values =
+Object.values(savings);
+
+
+const total =
+values.reduce(
+(a,b)=>a+Number(b),
+0
+);
+
+
+const now =
+new Date();
+
+
+const prefix =
+now.getFullYear() +
+"-" +
+String(
+now.getMonth()+1
+).padStart(2,"0");
+
+
+const currentMonth =
+Object.entries(savings)
+
+.filter(
+([date])=>
+date.startsWith(prefix)
+)
+
+.reduce(
+(total,[,amount])=>
+total+Number(amount),
+0
+);
+
+
+const goal =
+Number(
+goalInput.value
+) || 0;
+
+
+const percentage =
+goal
+?
+Math.min(
+100,
+total/goal*100
+)
+:
+0;
+
+
+
+document
+.getElementById("total")
+.textContent =
+money(total);
+
+
+document
+.getElementById("days")
+.textContent =
+values.length;
+
+
+document
+.getElementById("currentMonth")
+.textContent =
+money(currentMonth);
+
+
+document
+.getElementById("goalShow")
+.textContent =
+money(goal);
+
+
+document
+.getElementById("bar")
+.style.width =
+percentage + "%";
+
+
+document
+.getElementById("percent")
+.textContent =
+percentage.toFixed(1) +
+"% complete";
+
+
+updateMonthlyTotals();
+
+createCalendar();
+
+createHistory();
+
+}
+
+
+
+/* ==================================
+   CALENDAR
+================================== */
+
+function createCalendar(){
+
+
+const container =
+document.getElementById(
+"calendar"
+);
+
+
+container.innerHTML =
+"";
+
+
+for(
+let month=8;
+month<=11;
+month++
+){
+
+
+const title =
+document.createElement(
+"h3"
+);
+
+
+title.textContent =
+new Date(
+2026,
+month,
+1
+)
+.toLocaleString(
+"en-US",
+{
+month:"long",
+year:"numeric"
+}
+);
+
+
+container.appendChild(
+title
+);
+
+
+
+const grid =
+document.createElement(
+"div"
+);
+
+
+grid.className =
+"calendar";
+
+
+const weekDays = [
+
+"Sun",
+"Mon",
+"Tue",
+"Wed",
+"Thu",
+"Fri",
+"Sat"
+
+];
+
+
+weekDays.forEach(
+name=>{
+
+const day =
+document.createElement(
+"div"
+);
+
+
+day.className =
+"dow";
+
+day.textContent =
+name;
+
+grid.appendChild(
+day
+);
+
+});
+
+
+
+const firstDay =
+new Date(
+2026,
+month,
+1
+).getDay();
+
+
+const totalDays =
+new Date(
+2026,
+month+1,
+0
+).getDate();
+
+
+
+/* EMPTY DAYS */
+
+for(
+let i=0;
+i<firstDay;
+i++
+){
+
+grid.appendChild(
+document.createElement(
+"div"
+)
+);
+
+}
+
+
+
+/* DAYS */
+
+for(
+let day=1;
+day<=totalDays;
+day++
+){
+
+
+const date =
+new Date(
+2026,
+month,
+day
+);
+
+
+const key =
+dateKey(date);
+
+
+const cell =
+document.createElement(
+"div"
+);
+
+
+cell.className =
+"day";
+
+
+
+if(
+savings[key]
+){
+
+cell.classList.add(
+"saved"
+);
+
+}
+
+
+
+if(
+key ===
+dateKey(new Date())
+){
+
+cell.classList.add(
+"today"
+);
+
+}
+
+
+
+cell.innerHTML =
+"<b>" +
+day +
+"</b>" +
+
+(
+savings[key]
+?
+"<div class='amount'>Rs." +
+Number(
+savings[key]
+)
+.toLocaleString() +
+"</div>"
+:
+""
+);
+
+
+grid.appendChild(
+cell
+);
+
+}
+
+
+container.appendChild(
+grid
+);
+
+}
+
+}
+
+
+
+/* ==================================
+   HISTORY
+================================== */
+
+function createHistory(){
+
+
+const box =
+document.getElementById(
+"history"
+);
+
+
+const entries =
+Object.entries(savings)
+.sort(
+(a,b)=>
+b[0].localeCompare(
+a[0]
+)
+);
+
+
+if(
+entries.length === 0
+){
+
+box.innerHTML =
+"<div class='empty'>" +
+"තවම Saving එකක් නැහැ." +
+"</div>";
+
+return;
+
+}
+
+
+
+box.innerHTML =
+entries
+.map(
+([date,amount])=>
+
+"<div class='history-row'>" +
+
+"<span>📅 " +
+date +
+"</span>" +
+
+"<b>" +
+money(amount) +
+"</b>" +
+
+"</div>"
+)
+.join("");
+
+}
+
+
+
+/* ==================================
+   START
+================================== */
+
+updateAll();
+
+</script>
+
+</body>
+</html>
